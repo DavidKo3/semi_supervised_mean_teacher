@@ -17,7 +17,7 @@ import torch
 import random
 
 
-class CIFAR10(data.Dataset):
+class URBANSOUND8K(data.Dataset):
     """`CIFAR10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
     Args:
         root (string): Root directory of dataset where directory
@@ -44,8 +44,8 @@ class CIFAR10(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.split = split
-        self.height = 221
-        self.width = 223
+        # self.height = 221
+        # self.width = 223
         assert (boundary < 10)
         print("Boundary: ", boundary)
         if self.split not in self.split_list:
@@ -65,6 +65,8 @@ class CIFAR10(data.Dataset):
             self.train_data = self.data['train_x'].astype(np.float32).transpose(0, 3, 1, 2)
             # self.train_data = np.concatenate(self.train_data)
             self.train_labels = self.data['train_y'].astype(int)
+            self.height = self.train_data.shape[2] # 221
+            self.width = self.train_data.shape[3]  # 223
             print("self.train_data.shape :", self.train_data.shape)  # (50000, 3, 32, 32)
             print(self.train_labels.shape)
             if boundary is not 0:
@@ -303,9 +305,9 @@ if __name__ == '__main__':
 
     urbran_spetogram_npz = r"/data2/davidk/UrbanSound8K/urbansound8k_npz"
     file_name = r"unbanound8k_train_test.npz"
-    labelset = CIFAR10(os.path.join(urbran_spetogram_npz, file_name), split='label',
+    labelset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='label',
                        download=True, transform=None, boundary=0)
-    unlabelset = CIFAR10(os.path.join(urbran_spetogram_npz, file_name), split='unlabel',
+    unlabelset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='unlabel',
                          download=True, transform=None, boundary=0)
 
     # labelset = CIFAR10('/home/davidk/git/teacher_student_model/cifar10_zca/cifar10_gcn_zca_v2.npz', split='label',
