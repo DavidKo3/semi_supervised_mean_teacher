@@ -188,8 +188,14 @@ def train_mt(label_loader, unlabel_loader, model, model_teacher, criterions, opt
             label_iter = iter(label_loader)     
             input, target, input1 = next(label_iter)
         input_ul, _, input1_ul = next(unlabel_iter)
+        # print(f"input shape : {input.shape}")
+        # print(f"target shape : {target.shape}")
+        # print(f"input1 shape : {input1.shape}")
         sl = input.shape
         su = input_ul.shape
+
+        # print("train_loader label input shape : ", sl)
+        # print("train_loader unlabel input shape : ", su)
         batch_size = sl[0] + su[0]
         # measure data loading time
         data_time.update(time.time() - end)
@@ -204,13 +210,21 @@ def train_mt(label_loader, unlabel_loader, model, model_teacher, criterions, opt
        
         target_var = torch.autograd.Variable(target)
 
+        # print(f"input_concat_var shape : {input_concat_var.shape}")
+        # print(f"input1_concat_var shape : {input1_concat_var.shape}")
         # compute output
         output = model(input_concat_var)
+        # print(f"output size  of input_concat_var : {output.shape}")
         with torch.no_grad():
             output1 = model_teacher(input1_concat_var)
+            # print(f"output_1 size of input_concat_var shape : {output1.shape}")
 
         output_label = output[:sl[0]]
         output1_label = output1[:sl[0]]
+
+        # print(f"sl[0] (input shape[0]) : {sl[0]}")
+        # print(f"shape of output_label : {output_label.shape}")
+        # print(f"shape of target_var : {target_var}")
         #pred = F.softmax(output, 1)
         #pred1 = F.softmax(output1, 1)
         loss_ce = criterion(output_label, target_var) /float(sl[0])
@@ -273,6 +287,8 @@ def validate(val_loader, model, criterions, args, mode = 'valid'):
     with torch.no_grad():
         for i, (input, target, _) in enumerate(val_loader):
             sl = input.shape
+            # print("val_loader input shape : ", sl)
+            # print("val_loader target shape : ", target.shape)
             batch_size = sl[0]
             # target = target.cuda(async=True)
             target = target.cuda()
@@ -282,6 +298,14 @@ def validate(val_loader, model, criterions, args, mode = 'valid'):
             # compute output
             output = model(input_var)
             softmax = torch.nn.LogSoftmax(dim=1)(output)
+            # print("batch size :", batch_size)
+            # print("output size ", output.shape)
+            # print("target_var size ", target_var.shape)
+
+
+            # output = output[:batch_size]
+            # print("output[:batch_size] size ",output.shape )
+            # print("target_var size " ,target_var.shape)
             loss = criterion(output, target_var) / float(batch_size)
  
             # measure accuracy and record loss

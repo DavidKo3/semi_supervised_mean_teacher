@@ -44,8 +44,8 @@ class URBANSOUND8K(data.Dataset):
         self.transform = transform
         self.target_transform = target_transform
         self.split = split
-        # self.height = 221
-        # self.width = 223
+        self.height = 221
+        self.width = 223
         assert (boundary < 10)
         print("Boundary: ", boundary)
         if self.split not in self.split_list:
@@ -65,9 +65,9 @@ class URBANSOUND8K(data.Dataset):
             self.train_data = self.data['train_x'].astype(np.float32).transpose(0, 3, 1, 2)
             # self.train_data = np.concatenate(self.train_data)
             self.train_labels = self.data['train_y'].astype(int)
-            self.height = self.train_data.shape[2] # 221
-            self.width = self.train_data.shape[3]  # 223
-            print("self.train_data.shape :", self.train_data.shape)  # (50000, 3, 32, 32)
+            # self.height = self.train_data.shape[2] # 221
+            # self.width = self.train_data.shape[3]  # 223
+            # print("self.train_data.shape :", self.train_data.shape)  # (50000, 3, 32, 32)
             print(self.train_labels.shape)
             if boundary is not 0:
                 bidx = 5000 * boundary
@@ -101,19 +101,21 @@ class URBANSOUND8K(data.Dataset):
                     train_datau.append(self.train_data[i])
                     train_labelsu.append(self.train_labels[i])
 
-            print("num_labels_train: ", num_labels_train)
-            print("len_train_data1 : ", len(train_data1))
-            print("num_labels_valid: ", num_labels_valid)
-            print("len_valid_data1 :", len(valid_data1))
-            print("len_train_datau : ", len(train_datau))
+            # print("num_labels_train: ", num_labels_train)
+            # print("len_train_data1 : ", len(train_data1))
+            # print("num_labels_valid: ", num_labels_valid)
+            # print("len_valid_data1 :", len(valid_data1))
+            # print("len_train_datau : ", len(train_datau))
             if self.split is 'label':
                 self.train_data = train_data1
                 self.train_labels = train_labels1
 
+
                 self.train_data = np.concatenate(self.train_data)
+                # print(f"self.train_data : {self.train_data.shape}")
                 self.train_data = self.train_data.reshape((len(train_data1), 3, self.height, self.width))  # reshape to (B,C,H,W)
                 # self.train_data = self.train_data.transpose((0, 2, 3, 1))  # convert to HWC
-                print(f"self.train_data : {self.train_data.shape}")
+                # print(f"self.train_data : {self.train_data.shape}")
                 num_tr = self.train_data.shape[0]
                 # print(self.train_data1[:1,:1,:5,:5])
                 # print(self.train_labels1[:10])
@@ -131,6 +133,7 @@ class URBANSOUND8K(data.Dataset):
 
                 self.train_data_ul = np.concatenate(self.train_data_ul)
                 self.train_data_ul = self.train_data_ul.reshape((len(train_datau), 3, self.height, self.width))  # reshape to (B,C,H,W)
+                # print(f"self.train_data_ul : {self.train_data_ul.shape}")
                 # self.train_data_ul = self.train_data_ul.transpose((0, 2, 3, 1))  # convert to HWC
 
                 num_tr_ul = self.train_data_ul.shape[0]
@@ -151,7 +154,11 @@ class URBANSOUND8K(data.Dataset):
 
         elif self.split is 'test':
             # self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            self.test_data = self.data['test_x'].astype(np.float32)
+            # self.test_data = self.data['test_x'].astype(np.float32)
+
+            self.test_data = self.data['test_x'].astype(np.float32).transpose(0,3,1,2)
+            self.test_data = self.test_data.reshape(self.test_data.shape[0], 3, self.height, self.width)
+            # print(f"test_data.shape : {self.test_data.shape}")
             self.test_labels = self.data['test_y'].astype(int)
 
     def __getitem__(self, index):
@@ -173,34 +180,36 @@ class URBANSOUND8K(data.Dataset):
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
         # img = Image.fromarray(img)
+
         img1 = np.copy(img)  # (32,32,3)
         # img1 = Image.fromarray(img1)
 
-        # if self.split is 'label' or self.split is 'unlabel':
-        #     img = random_crop(img, 32, padding=2)
-        #     img = horizontal_flip(img, 0.5)
-        #     img = img.copy()
-        #     img = torch.from_numpy(img)
-        #     img = img + torch.randn_like(img) * 0.15
-        #     img = img.permute(2, 0, 1)  # convert to (3, 32, 32) for pytorch input image
-        #     # img = self.transform(img)
+        if self.split is 'label' or self.split is 'unlabel':
+            # img = random_crop(img, 32, padding=2)
+            # img = horizontal_flip(img, 0.5)
+            # img = img.copy()
+            img = torch.from_numpy(img)
+            # img = img + torch.randn_like(img) * 0.15
+            # img = img.permute(2, 0, 1)  # convert to (3, 32, 32) for pytorch input image
+            # img = self.transform(img)
         #
         #     img1 = random_crop(img1, 32, padding=2)
         #     img1 = horizontal_flip(img1, 0.5)
         #     img1 = img1.copy()
-        #     img1 = torch.from_numpy(img1)
+            img1 = torch.from_numpy(img1)
         #     img1 = img1 + torch.randn_like(img1) * 0.15
         #     img1 = img1.permute(2, 0, 1)
-        #     # img1 = self.transform(img1)
-        # else:
-        #     img = torch.from_numpy(img)
+        #     img1 = self.transform(img1)
+        else:
+            img = torch.from_numpy(img)
         #     img = img.permute(2, 0, 1)
         #
-        #     img1 = torch.from_numpy(img1)
+            img1 = torch.from_numpy(img1)
         #     img1 = img1.permute(2, 0, 1)
-        #
-        # if self.target_transform is not None:
-        #     target = self.target_transform(target)
+        #     img = self.transform(img)
+        #     img1 = self.transform(img1)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
 
         return img, target, img1
 
@@ -310,15 +319,16 @@ if __name__ == '__main__':
     unlabelset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='unlabel',
                          download=True, transform=None, boundary=0)
 
+    testset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='test',
+                              download=True, transform=None, boundary=0)
     # labelset = CIFAR10('/home/davidk/git/teacher_student_model/cifar10_zca/cifar10_gcn_zca_v2.npz', split='label',
     #                    download=True, transform=None, boundary=0)
     # unlabelset = CIFAR10('/home/davidk/git/teacher_student_model/cifar10_zca/cifar10_gcn_zca_v2.npz', split='unlabel',
     #                      download=True, transform=None, boundary=0)
-
-    ret = labelset[0]
-    print(ret)
-
-    for i in range(90, 256):
+    # labelset_0, _ , _ = labelset[0]
+    # print(f"labelset[0] {labelset_0.shape}")
+    for i in range(16, 32):
+    # for i in range(90, 256):
         batch_size = i
         label_size = len(labelset)
         unlabel_size = len(unlabelset)
@@ -335,14 +345,18 @@ if __name__ == '__main__':
             print('Iter/epoch (label): ', iter_label)
             print('Iter/epoch (unlabel): ', iter_unlabel)
 
-    label_loader = data.DataLoader(labelset, batch_size=batch_size_label, shuffle=True)
+    label_loader = data.DataLoader(labelset, batch_size=batch_size_label, shuffle=True, pin_memory=True)
     label_iter = iter(label_loader)
 
     unlabel_loader = data.DataLoader(unlabelset, batch_size=batch_size_unlabel, shuffle=True)
     unlabel_iter = iter(unlabel_loader)
 
+    test_loader = data.DataLoader(testset, batch_size=batch_size_unlabel, shuffle=False)
+    test_iter = iter(test_loader)
+
     print(len(label_iter))
     print(len(unlabel_iter))
+    print(len(test_iter))
 
 
 

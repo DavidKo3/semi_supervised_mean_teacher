@@ -58,17 +58,16 @@ class CIFAR10(data.Dataset):
 
         # now load the picked numpy arrays
         if self.split is 'label' or self.split is 'unlabel' or self.split is 'valid':
-            
             self.train_data = self.data['train_x'].astype(np.float32).transpose(0,3,1,2)
             #self.train_data = np.concatenate(self.train_data)
             self.train_labels = self.data['train_y'].astype(int)
-            print(self.train_data.shape)
+            print( "self.train_data.shape :", self.train_data.shape) # (50000, 3, 32, 32)
             print(self.train_labels.shape)
             if boundary is not 0:
                 bidx = 5000 * boundary 
-                self.train_data = [self.train_data[bidx:],self.train_data[:bidx]]
+                self.train_data = [self.train_data[bidx:], self.train_data[:bidx]]
                 self.train_data = np.concatenate(self.train_data)
-                self.train_labels = [self.train_labels[bidx:],self.train_labels[:bidx]]
+                self.train_labels = [self.train_labels[bidx:], self.train_labels[:bidx]]
                 self.train_labels = np.concatenate(self.train_labels)
 
             train_datau = []
@@ -106,9 +105,9 @@ class CIFAR10(data.Dataset):
                 self.train_labels = train_labels1
 
                 self.train_data = np.concatenate(self.train_data)
-                self.train_data = self.train_data.reshape((len(train_data1), 3, 32, 32))
+                self.train_data = self.train_data.reshape((len(train_data1), 3, 32, 32)) # reshape to (B,C,H,W)
                 self.train_data = self.train_data.transpose((0, 2, 3, 1))  # convert to HWC
-
+                print(f"self.train_data : {self.train_data.shape}")
                 num_tr = self.train_data.shape[0]
                 #print(self.train_data1[:1,:1,:5,:5])
                 #print(self.train_labels1[:10])
@@ -125,7 +124,7 @@ class CIFAR10(data.Dataset):
                 self.train_labels_ul = train_labelsu
 
                 self.train_data_ul = np.concatenate(self.train_data_ul)
-                self.train_data_ul = self.train_data_ul.reshape((len(train_datau), 3, 32, 32))
+                self.train_data_ul = self.train_data_ul.reshape((len(train_datau), 3, 32, 32)) # reshape to (B,C,H,W)
                 self.train_data_ul = self.train_data_ul.transpose((0, 2, 3, 1))  # convert to HWC
 
                 num_tr_ul = self.train_data_ul.shape[0]
@@ -136,7 +135,7 @@ class CIFAR10(data.Dataset):
                 self.valid_labels = valid_labels1
  
                 self.valid_data = np.concatenate(self.valid_data)
-                self.valid_data = self.valid_data.reshape((len(valid_data1), 3, 32, 32))
+                self.valid_data = self.valid_data.reshape((len(valid_data1), 3, 32, 32)) # reshape to (B,C,H,W)
                 self.valid_data = self.valid_data.transpose((0, 2, 3, 1))  # convert to HWC
                 
                 num_val = self.valid_data.shape[0]
@@ -146,7 +145,6 @@ class CIFAR10(data.Dataset):
             
         elif self.split is 'test':
             #self.test_data = self.test_data.reshape((10000, 3, 32, 32))
-            #self.test_data = self.test_data.transpose((0, 2, 3, 1))  # convert to HWC
             self.test_data = self.data['test_x'].astype(np.float32) 
             self.test_labels = self.data['test_y'].astype(int) 
 
@@ -169,16 +167,19 @@ class CIFAR10(data.Dataset):
         # doing this so that it is consistent with all other datasets
         # to return a PIL Image
         #img = Image.fromarray(img)
-        img1 = np.copy(img)
+        img1 = np.copy(img) # (32,32,3)
         #img1 = Image.fromarray(img1)
+
+
         if self.split is 'label' or self.split is 'unlabel':
             img = random_crop(img, 32, padding=2)
             img = horizontal_flip(img, 0.5)
             img = img.copy()
             img = torch.from_numpy(img)
             img = img + torch.randn_like(img) * 0.15
-            img = img.permute(2,0,1)
+            img = img.permute(2,0,1) # convert to (3, 32, 32) for pytorch input image
             #img = self.transform(img)
+
 
             img1 = random_crop(img1, 32, padding=2)
             img1 = horizontal_flip(img1, 0.5)
@@ -297,6 +298,10 @@ if __name__ == '__main__':
     
     labelset = CIFAR10('/home/davidk/git/teacher_student_model/cifar10_zca/cifar10_gcn_zca_v2.npz', split='label', download=True, transform=None, boundary=0)
     unlabelset = CIFAR10('/home/davidk/git/teacher_student_model/cifar10_zca/cifar10_gcn_zca_v2.npz', split='unlabel', download=True, transform=None, boundary=0)
+
+
+    ret= labelset[0]
+    print(ret)
 
     for i in range(90,256):
         batch_size = i

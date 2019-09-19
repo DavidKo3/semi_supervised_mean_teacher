@@ -24,6 +24,7 @@ import bisect
 import loader_cifar as cifar
 import loader_cifar_zca as cifar_zca
 import loader_svhn as svhn
+import loader_urbansound as urbansound
 import math
 from math import ceil
 import torch.nn.functional as F
@@ -33,20 +34,23 @@ from methods import train_sup, train_pi, train_mt, validate
 parser = argparse.ArgumentParser(description='PyTorch Semi-supervised learning Training')
 parser.add_argument('--arch', '-a', metavar='ARCH', default='wideresnet',
                     help='model architecture: '+ ' (default: wideresnet)')
-parser.add_argument('--model', '-m', metavar='MODEL', default='baseline',
+parser.add_argument('--model', '-m', metavar='MODEL', default='mt',
                     help='model: '+' (default: baseline)', choices=['baseline', 'pi', 'mt'])
 parser.add_argument('--optim', '-o', metavar='OPTIM', default='adam',
                     help='optimizer: '+' (default: adam)', choices=['adam', 'sgd'])
-parser.add_argument('--dataset', '-d', metavar='DATASET', default='cifar10_zca',
-                    help='dataset: '+' (default: cifar10)', choices=['cifar10', 'cifar10_zca', 'svhn'])
+parser.add_argument('--dataset', '-d', metavar='DATASET', default='urbansound8k',
+                    help='dataset: '+' (default: cifar10)', choices=['cifar10', 'cifar10_zca', 'svhn','urbansound8k'])
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 parser.add_argument('--epochs', default=1200, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=256, type=int,
+parser.add_argument('-b', '--batch-size', default=29, type=int,
                     metavar='N', help='mini-batch size (default: 225)')
+
+# parser.add_argument('-b', '--batch-size', default=256, type=int,
+#                     metavar='N', help='mini-batch size (default: 225)')
 parser.add_argument('--lr', '--learning-rate', default=0.003, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
@@ -110,7 +114,7 @@ def main():
         model_teacher = torch.nn.DataParallel(model_teacher).cuda()
 
     model = torch.nn.DataParallel(model).cuda()
-    print (model)
+    # print (model)
     
     # optionally resume from a checkpoint
     if args.resume:
@@ -192,7 +196,26 @@ def main():
         transform_test = transforms.Compose([
             transforms.ToTensor(),
             normalize,
-        ])    
+        ])
+    elif args.dataset == "urbansound8k":
+        dataloader = urbansound.URBANSOUND8K
+        num_classes = 10
+
+        urbran_spetogram_npz = r"/data2/davidk/UrbanSound8K/urbansound8k_npz"
+        file_name = r"unbanound8k_train_test.npz"
+        data_dir = os.path.join(urbran_spetogram_npz, file_name)
+
+        transform_train = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
+
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                                 std=[0.5, 0.5, 0.5])
+        ])
 
    
     labelset = dataloader(root=data_dir, split='label', download=True, transform=transform_train, boundary=args.boundary)
@@ -203,20 +226,21 @@ def main():
 
     label_loader = data.DataLoader(labelset, 
         batch_size=batch_size_label, 
-        shuffle=True, 
+        shuffle=True,
         num_workers=args.workers,
         pin_memory=True)
     label_iter = iter(label_loader) 
 
     unlabel_loader = data.DataLoader(unlabelset, 
         batch_size=batch_size_unlabel, 
-        shuffle=True, 
+        shuffle=True,
         num_workers=args.workers,
         pin_memory=True)
     unlabel_iter = iter(unlabel_loader) 
 
     print("Batch size (label): ", batch_size_label)
     print("Batch size (unlabel): ", batch_size_unlabel)
+
 
 
     validset = dataloader(root=data_dir, split='valid', download=True, transform=transform_test, boundary=args.boundary)

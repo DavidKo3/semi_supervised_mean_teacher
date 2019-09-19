@@ -50,7 +50,6 @@ class NetworkBlock(nn.Module):
         self.layer = self._make_layer(block, in_planes, out_planes, nb_layers, stride, dropRate, leakyRate, actBeforeRes)
     def _make_layer(self, block, in_planes, out_planes, nb_layers, stride, dropRate, leakyRate, actBeforeRes):
         layers = []
-        print("nb_layers : ", nb_layers)
         for i in range(int(nb_layers)):
             layers.append(block(i == 0 and in_planes or out_planes, out_planes, i == 0 and stride or 1, dropRate, leakyRate, actBeforeRes))
         return nn.Sequential(*layers)
@@ -94,6 +93,8 @@ class WideResNet(nn.Module):
         out = self.block2(out)
         out = self.block3(out)
         out = self.relu(self.bn1(out))
-        out = F.avg_pool2d(out, 8)
+
+        # out = F.avg_pool2d(out, 8)
+        out = F.adaptive_avg_pool2d(out, (1, 1)) # for other data containing dim like [x, 3, h, w]
         out = out.view(-1, self.nChannels)
         return self.fc(out)
