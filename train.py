@@ -202,7 +202,7 @@ def main():
         num_classes = 10
 
         urbran_spetogram_npz = r"/data2/davidk/UrbanSound8K/urbansound8k_npz"
-        file_name = r"unbanound8k_train_test.npz"
+        file_name = r"unbanound8k_train_test_v2.npz"
         data_dir = os.path.join(urbran_spetogram_npz, file_name)
 
         transform_train = transforms.Compose([
