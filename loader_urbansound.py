@@ -192,7 +192,6 @@ class URBANSOUND8K(data.Dataset):
             # img = img + torch.randn_like(img) * 0.15
             # img = img.permute(2, 0, 1)  # convert to (3, 32, 32) for pytorch input image
             # img = self.transform(img)
-        #
         #     img1 = random_crop(img1, 32, padding=2)
         #     img1 = horizontal_flip(img1, 0.5)
         #     img1 = img1.copy()
