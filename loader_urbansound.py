@@ -18,7 +18,7 @@ import random
 
 
 class URBANSOUND8K(data.Dataset):
-    """`CIFAR10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ Dataset.
+    """
     Args:
         root (string): Root directory of dataset where directory
             ``cifar-10-batches-py`` exists.
@@ -312,7 +312,7 @@ if __name__ == '__main__':
     batch_size = 230
 
     urbran_spetogram_npz = r"/data2/davidk/UrbanSound8K/urbansound8k_npz"
-    file_name = r"unbanound8k_train_test.npz"
+    file_name = r"unbanound8k_train_test_1_fold.npz"
     labelset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='label',
                        download=True, transform=None, boundary=0)
     unlabelset = URBANSOUND8K(os.path.join(urbran_spetogram_npz, file_name), split='unlabel',
@@ -326,23 +326,33 @@ if __name__ == '__main__':
     #                      download=True, transform=None, boundary=0)
     # labelset_0, _ , _ = labelset[0]
     # print(f"labelset[0] {labelset_0.shape}")
-    for i in range(16, 32):
-    # for i in range(90, 256):
-        batch_size = i
-        label_size = len(labelset)
-        unlabel_size = len(unlabelset)
-        iter_per_epoch = int(ceil(float(label_size + unlabel_size) / batch_size))
-        batch_size_label = int(ceil(float(label_size) / iter_per_epoch))
-        batch_size_unlabel = int(ceil(float(unlabel_size) / iter_per_epoch))
-        iter_label = int(ceil(float(label_size) / batch_size_label))
-        iter_unlabel = int(ceil(float(unlabel_size) / batch_size_unlabel))
-        if iter_label == iter_unlabel:
-            print('Batch size: ', batch_size)
-            print('Iter/epoch: ', iter_per_epoch)
-            print('Batch size (label): ', batch_size_label)
-            print('Batch size (unlabel): ', batch_size_unlabel)
-            print('Iter/epoch (label): ', iter_label)
-            print('Iter/epoch (unlabel): ', iter_unlabel)
+    print("-"*30)
+    print(f"len labelset : {len(labelset)}")
+    print(f"len unlabelset : {len(unlabelset)}")
+    print(f"len testset : {len(testset)}")
+    print("-"*30)
+
+    # for i in range(16, 32):
+    # # for i in range(90, 256):
+    #     batch_size = i
+    #     label_size = len(labelset)
+    #     unlabel_size = len(unlabelset)
+    #     iter_per_epoch = int(ceil(float(label_size + unlabel_size) / batch_size))
+    #     batch_size_label = int(ceil(float(label_size) / iter_per_epoch))
+    #     batch_size_unlabel = int(ceil(float(unlabel_size) / iter_per_epoch))
+    #     iter_label = int(ceil(float(label_size) / batch_size_label))
+    #     iter_unlabel = int(ceil(float(unlabel_size) / batch_size_unlabel))
+    #     if iter_label == iter_unlabel:
+    #         print('Batch size: ', batch_size)
+    #         print('Iter/epoch: ', iter_per_epoch)
+    #         print('Batch size (label): ', batch_size_label)
+    #         print('Batch size (unlabel): ', batch_size_unlabel)
+    #         print('Iter/epoch (label): ', iter_label)
+    #         print('Iter/epoch (unlabel): ', iter_unlabel)
+
+    batch_size_label = 20
+    batch_size_unlabel = 20
+    batch_size_test = 20
 
     label_loader = data.DataLoader(labelset, batch_size=batch_size_label, shuffle=True, pin_memory=True)
     label_iter = iter(label_loader)
@@ -350,12 +360,19 @@ if __name__ == '__main__':
     unlabel_loader = data.DataLoader(unlabelset, batch_size=batch_size_unlabel, shuffle=True)
     unlabel_iter = iter(unlabel_loader)
 
-    test_loader = data.DataLoader(testset, batch_size=batch_size_unlabel, shuffle=False)
+    test_loader = data.DataLoader(testset, batch_size=batch_size_test, shuffle=False)
     test_iter = iter(test_loader)
 
-    print(len(label_iter))
-    print(len(unlabel_iter))
-    print(len(test_iter))
+
+    print(f"batch_size_label : {batch_size_label}")
+    print(f"batch_size_unlabel : {batch_size_unlabel}")
+    print(f"batch_size_test : {batch_size_test}")
+
+
+
+    print(f"len(label_iter) :{len(label_iter)}")
+    print(f"len(unlabel_iter) :{len(unlabel_iter)}")
+    print(f"len(test_iter) :{len(test_iter)}")
 
 
 
