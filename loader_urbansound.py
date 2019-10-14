@@ -363,7 +363,7 @@ if __name__ == '__main__':
     test_loader = data.DataLoader(testset, batch_size=batch_size_test, shuffle=False)
     test_iter = iter(test_loader)
 
-    print("_"*100)
+    print("check label iteration part-------------------------------------------------------------------")
     for i in range(len(unlabelset)):
         try :
             a , tar, b = next(label_iter)
