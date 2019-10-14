@@ -369,7 +369,7 @@ if __name__ == '__main__':
             a , tar, b = next(label_iter)
             print(tar)
         except StopIteration:
-            print("stiouteration_part")
+            print("stop_Iteration_part")
             label_iter_other = iter(label_loader)
             a, tar, b = next(label_iter_other)
             print(tar)
