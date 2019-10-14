@@ -368,8 +368,6 @@ if __name__ == '__main__':
     print(f"batch_size_unlabel : {batch_size_unlabel}")
     print(f"batch_size_test : {batch_size_test}")
 
-
-
     print(f"len(label_iter) :{len(label_iter)}")
     print(f"len(unlabel_iter) :{len(unlabel_iter)}")
     print(f"len(test_iter) :{len(test_iter)}")
